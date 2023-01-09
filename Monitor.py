@@ -1,5 +1,4 @@
 import concurrent.futures
-import sys
 from pythonping import ping
 import ipaddress
 
@@ -12,7 +11,7 @@ def is_connected(ip_address):
 
 ip_addresses = []
 for i in range(255):
-    ip_addresses.append("192.168.1.{}".format(str(i)))
+    ip_addresses.append("192.168.1.{}".format(str(i+1)))
 
 
 def scan_network():
@@ -30,7 +29,8 @@ def compare():
         print("something changed")
         went_online = list(set(online)-set(online_old))
         went_offline = list(set(online_old)-set(online))
-        print(went_online, "\n", went_offline)
+        print("CAME ONLINE: ", went_online)
+        print("WENT OFFLINE: ", went_offline)
     else:
         print("nothing changed")
 
@@ -41,7 +41,7 @@ def main():
     offline = []
 
     while True:
-        if sys.getsizeof(online) == 64:
+        if len(online) == 0:
             scan_network()
         else:
             global online_old
