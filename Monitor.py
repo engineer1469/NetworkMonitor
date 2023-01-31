@@ -1,6 +1,16 @@
 import concurrent.futures
 from pythonping import ping
 import ipaddress
+import socket
+import struct
+
+def get_ip_prefix():
+    host_name = socket.gethostname()
+    ip_address = socket.gethostbyname(host_name)
+    packed_ip = struct.unpack("!I", socket.inet_aton(ip_address))[0]
+    ip_prefix = socket.inet_ntoa(struct.pack("!I", packed_ip & 0xFFFFFF00))
+    ip_prefix = ip_prefix[:-1]
+    return ip_prefix
 
 def is_connected(ip_address):
     response = ping(ip_address, verbose=False, count=2, timeout=1)
@@ -8,11 +18,6 @@ def is_connected(ip_address):
         online.append(ip_address)
     else:
         offline.append(ip_address)
-
-ip_addresses = []
-for i in range(255):
-    ip_addresses.append("192.168.1.{}".format(str(i+1)))
-
 
 def scan_network():
     # create a queue to hold the IP addresses
@@ -23,22 +28,32 @@ def scan_network():
         # wait for the tasks to complete
         concurrent.futures.wait(futures)
     
-
 def compare():
     if online != online_old:
+        print("\n"*50)
         print("something changed")
         went_online = list(set(online)-set(online_old))
         went_offline = list(set(online_old)-set(online))
         print("CAME ONLINE: ", went_online)
         print("WENT OFFLINE: ", went_offline)
+        print("Active: ",len(online))
     else:
+        print("\n"*50)
         print("nothing changed")
+        print("Active: ",len(online))
 
 def main():
+    ip_prefix = get_ip_prefix()
+    answer = input("Use detected IP prefix?({}) Y/N:".format(ip_prefix))
+    if answer != 'Y' and answer != 'y':
+        ip_prefix = input("Which prefix should be used?: ")
+    global ip_addresses
+    ip_addresses = [ip_prefix + str(i) for i in range(1, 256)]
     global online
     global offline
     online = []
     offline = []
+    print("SCANNING...")
 
     while True:
         if len(online) == 0:
