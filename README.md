@@ -46,6 +46,7 @@ To install and run the Network Scanner, follow these steps:
 - [x] Implement device tracking and change detection
 - [x] Add manufacturer and hostname identification
 - [x] Implement nickname support
+- [ ] Fix the scanner to work with ethernet
 - [ ] Add better fingerprinting of devices(like iPhones)
 - [ ] Add a graphical user interface
 - [ ] Implement network traffic analysis
